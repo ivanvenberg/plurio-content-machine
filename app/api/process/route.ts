@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 
+export const maxDuration = 60
+
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
+  maxRetries: 0,
 })
 
 const SYSTEM_PROMPT = `You are Plurio's Intelligence Engine — an elite editorial analyst that transforms raw interview transcripts into structured, publication-quality insight reports.
@@ -81,7 +84,7 @@ export async function POST(req: NextRequest) {
     }
 
     const message = await client.messages.create({
-      model: 'claude-opus-4-6',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 4000,
       system: SYSTEM_PROMPT,
       messages: [
@@ -97,7 +100,6 @@ export async function POST(req: NextRequest) {
       throw new Error('Unexpected response format from AI')
     }
 
-    // Parse JSON — strip any accidental markdown fences
     const cleaned = content.text
       .replace(/^```json\s*/i, '')
       .replace(/^```\s*/i, '')
